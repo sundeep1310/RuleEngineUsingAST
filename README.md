@@ -1,0 +1,95 @@
+# Rule Engine Application
+
+## Overview
+
+This Rule Engine Application is a web-based tool that allows users to create, manage, and evaluate rules based on given data. It provides a simple interface for defining complex logical rules and testing them against JSON data.
+
+## Features
+
+- Create new rules using a simple syntax
+- View all existing rules
+- Delete individual rules
+- Delete all rules at once
+- Evaluate data against the created rules
+- RESTful API for rule management and evaluation
+
+## Technology Stack
+
+- Backend: Flask (Python)
+- Frontend: HTML, JavaScript, Tailwind CSS
+- Database: SQLite (configurable to other databases)
+- Additional libraries: Flask-CORS, Flask-Limiter, Flask-SQLAlchemy, Flask-Caching
+
+## Setup Instructions
+
+1. Clone the repository:
+   ```
+   git clone <repository-url>
+   cd rule-engine-application
+   ```
+
+2. Create a virtual environment and activate it:
+   ```
+   python -m venv venv
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   ```
+
+3. Install the required dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+
+4. Set up environment variables:
+   Create a `.env` file in the root directory and add the following variables:
+   ```
+   SECRET_KEY=your_secret_key
+   DATABASE_URL=sqlite:///rules.db
+   ```
+
+5. Initialize the database:
+   ```
+   flask db init
+   flask db migrate
+   flask db upgrade
+   ```
+
+6. Run the application:
+   ```
+   python app.py
+   ```
+
+The application should now be running on `http://localhost:5000`.
+
+## Usage
+
+### Creating Rules
+
+Rules should be entered in the following format:
+```
+(attribute operator value) AND/OR (attribute operator value)
+```
+
+Operators: `=`, `>`, `<`
+
+Example:
+```
+(age > 30 AND department = 'Sales') OR (salary < 50000)
+```
+
+### Evaluating Rules
+
+Enter JSON data matching the attributes in your rules. For example:
+```json
+{"age": 35, "department": "Sales", "salary": 60000}
+```
+
+### API Endpoints
+
+- `POST /create_rule`: Create a new rule
+- `POST /evaluate_rule`: Evaluate data against existing rules
+- `GET /get_rules`: Retrieve all existing rules
+- `DELETE /delete_rule/<rule_id>`: Delete a specific rule
+- `DELETE /delete_all_rules`: Delete all rules
+
+
+
