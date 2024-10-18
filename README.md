@@ -109,3 +109,30 @@ Note: All API endpoints require user authentication.
 
 The application uses Flask-Caching to improve performance by caching frequent database queries and API responses.
 
+## Troubleshooting
+
+### rules.db Error
+
+If you encounter an error related to `rules.db`, follow these steps:
+
+1. Stop the application if it's running.
+
+2. Delete the existing `rules.db` file:
+   ```
+   rm instance/rules.db
+   ```
+   Note: The path might be different depending on your project structure. Adjust accordingly.
+
+3. Reinitialize the database:
+   ```
+   flask db init
+   flask db migrate
+   flask db upgrade
+   ```
+
+4. Restart your application:
+   ```
+   python app.py
+   ```
+
+This process will create a fresh `rules.db` file and should resolve any issues related to database schema mismatches or corrupted database files.

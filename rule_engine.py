@@ -132,7 +132,7 @@ def combine_rules(rules: List[str]) -> Node:
     if len(rules) == 1:
         return create_rule(rules[0])
     
-    combined = Node("operator", "AND")
+    combined = Node("operator", "OR")
     combined.left = create_rule(rules[0])
     combined.right = combine_rules(rules[1:])
     return combined
@@ -142,18 +142,18 @@ if __name__ == "__main__":
     test_cases = [
         {
             "rule": "(age > 30 AND department = 'Sales') OR (salary < 50000)",
-            "data": {"age": 35, "department": "Sales", "salary": 41000},
+            "data": {"age": 35, "department": "Sales", "salary": 60000},
             "expected": True
         },
         {
             "rule": "(age > 30 AND department = 'Sales') OR (salary < 50000)",
-            "data": {"age": 25, "department": "Sales", "salary": 60000},
+            "data": {"age": 25, "department": "Marketing", "salary": 60000},
             "expected": False
         },
         {
-            "rule": "(age > 30 AND department = 'Sales') OR (salary < 50000)",
-            "data": {"age": 25, "department": "Sales", "salary": 80000},
-            "expected": False
+            "rule": "(age < 10 AND department = 'Child Labor') OR (salary < 750)",
+            "data": {"age": 5, "department": "Child Labor", "salary": 60000},
+            "expected": True
         },
         {
             "rule": "(age > 20 AND department = 'Sales') OR (salary < 90000)",
@@ -178,3 +178,17 @@ if __name__ == "__main__":
             print(f"{'PASSED' if result == test['expected'] else 'FAILED'}")
         except ValueError as e:
             print(f"Test {i} Error: {e}")
+
+    # Test combine_rules
+    print("\nTesting combine_rules:")
+    rules = [
+        "(age < 10 AND department = 'Child Labor') OR (salary < 750)",
+        "(age > 30 AND department = 'Sales') OR (salary < 50000)"
+    ]
+    combined_rule = combine_rules(rules)
+    test_data = {"age": 35, "department": "Sales", "salary": 60000}
+    result = evaluate_rule(combined_rule, test_data)
+    print(f"Combined rules: {rules}")
+    print(f"Test data: {test_data}")
+    print(f"Result: {result}")
+    print("PASSED" if result else "FAILED")

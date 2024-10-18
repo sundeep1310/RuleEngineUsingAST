@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rule Engine UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Rule Engine UI</h1>
+            <a href="{{ url_for('logout') }}" class="bg-red-500 text-white px-4 py-2 rounded">Logout</a>
+        </div>
+
+        <h2 class="text-xl font-semibold mb-4">Create Rule</h2>
+        <div class="mb-6">
+            <p class="mb-2">Rule Format:</p>
+            <ul class="list-disc list-inside mb-2">
+                <li>(attribute operator value) AND/OR (attribute operator value)</li>
+                <li>Operators: =, >, <</li>
+                <li>Use parentheses to group conditions</li>
+                <li>Strings should be in single quotes</li>
+            </ul>
+            <p class="mb-2">Example: (age > 30 AND department = 'Sales') OR (salary < 50000)</p>
+            <input type="text" id="ruleInput" class="w-full p-2 border rounded mb-2" placeholder="Enter your rule">
+            <button onclick="createRule()" class="bg-blue-500 text-white px-4 py-2 rounded">Create Rule</button>
+        </div>
+
+        <h2 class="text-xl font-semibold mb-4">Existing Rules</h2>
+        <div id="rulesList" class="mb-6"></div>
+        <button onclick="deleteAllRules()" class="bg-red-500 text-white px-4 py-2 rounded mb-6">Delete All Rules</button>
+
+        <h2 class="text-xl font-semibold mb-4 mt-6">Evaluate Rule</h2>
+        <div class="mb-6">
+            <p class="mb-2">Enter JSON data matching the attributes in your rules.</p>
+            <p class="mb-2">Example: {"age": 35, "department": "Sales", "salary": 60000}</p>
+            <textarea id="jsonInput" class="w-full p-2 border rounded mb-2" rows="4" placeholder="Enter JSON data"></textarea>
+            <button onclick="evaluateRule()" class="bg-green-500 text-white px-4 py-2 rounded">Evaluate Rule</button>
+        </div>
+
+        <div id="result" class="mt-4 p-4 bg-gray-200 rounded hidden"></div>
+        <div id="error" class="mt-4 p-4 bg-red-200 text-red-700 rounded hidden"></div>
+    </div>
+
+    <script>
+        function createRule() {
+            const ruleString = document.getElementById('ruleInput').value;
+            fetch('/api/create_rule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ rule: ruleString }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    document.getElementById('ruleInput').value = '';
+                    fetchRules();
+                }
+            })
+            .catch(error => showError('Error creating rule: ' + error));
+        }
+
+        function fetchRules() {
+            fetch('/api/get_rules')
+            .then(response => response.json())
+            .then(rules => {
+                const rulesList = document.getElementById('rulesList');
+                rulesList.innerHTML = '';
+                rules.forEach(rule => {
+                    const ruleElement = document.createElement('div');
+                    ruleElement.className = 'flex justify-between items-center mb-2 p-2 bg-gray-100 rounded';
+                    ruleElement.innerHTML = `
+                        <span>${rule.rule_string}</span>
+                        <button onclick="deleteRule(${rule.id})" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                    `;
+                    rulesList.appendChild(ruleElement);
+                });
+            })
+            .catch(error => showError('Error fetching rules: ' + error));
+        }
+
+        function deleteRule(ruleId) {
+            fetch(`/api/delete_rule/${ruleId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    fetchRules();
+                }
+            })
+            .catch(error => showError('Error deleting rule: ' + error));
+        }
+
+        function deleteAllRules() {
+            fetch('/api/delete_all_rules', { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    fetchRules();
+                }
+            })
+            .catch(error => showError('Error deleting all rules: ' + error));
+        }
+
+        function evaluateRule() {
+            const jsonData = document.getElementById('jsonInput').value;
+            fetch('/api/evaluate_rule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResult('Evaluation result: ' + data.result);
+                }
+            })
+            .catch(error => showError('Error evaluating rule: ' + error));
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+
+        function showResult(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.classList.remove('hidden');
+            setTimeout(() => resultDiv.classList.add('hidden'), 5000);
+        }
+
+        // Fetch rules when the page loads
+        fetchRules();
+    </script>
+</body>
+</html>
