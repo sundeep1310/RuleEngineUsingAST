@@ -6,6 +6,7 @@ This Rule Engine Application is a web-based tool that allows users to create, ma
 
 ## Features
 
+- User authentication (login and registration)
 - Create new rules using a simple syntax
 - View all existing rules
 - Delete individual rules
@@ -18,7 +19,7 @@ This Rule Engine Application is a web-based tool that allows users to create, ma
 - Backend: Flask (Python)
 - Frontend: HTML, JavaScript, Tailwind CSS
 - Database: SQLite (configurable to other databases)
-- Additional libraries: Flask-CORS, Flask-Limiter, Flask-SQLAlchemy, Flask-Caching
+- Additional libraries: Flask-CORS, Flask-Limiter, Flask-SQLAlchemy, Flask-Caching, Flask-Login
 
 ## Setup Instructions
 
@@ -62,6 +63,11 @@ The application should now be running on `http://localhost:5000`.
 
 ## Usage
 
+### User Authentication
+
+- Register a new account using the registration page.
+- Log in using your credentials on the login page.
+
 ### Creating Rules
 
 Rules should be entered in the following format:
@@ -85,11 +91,21 @@ Enter JSON data matching the attributes in your rules. For example:
 
 ### API Endpoints
 
-- `POST /create_rule`: Create a new rule
-- `POST /evaluate_rule`: Evaluate data against existing rules
-- `GET /get_rules`: Retrieve all existing rules
-- `DELETE /delete_rule/<rule_id>`: Delete a specific rule
-- `DELETE /delete_all_rules`: Delete all rules
+- `POST /api/create_rule`: Create a new rule
+- `POST /api/evaluate_rule`: Evaluate data against existing rules
+- `GET /api/get_rules`: Retrieve all existing rules
+- `DELETE /api/delete_rule/<rule_id>`: Delete a specific rule
+- `DELETE /api/delete_all_rules`: Delete all rules
 
+Note: All API endpoints require user authentication.
 
+## Security
+
+- User passwords are hashed before storing in the database.
+- Rate limiting is implemented to prevent abuse of the API.
+- CORS is configured to control which domains can access the API.
+
+## Caching
+
+The application uses Flask-Caching to improve performance by caching frequent database queries and API responses.
 
